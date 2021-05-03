@@ -5,6 +5,7 @@ import couchdb
 import json
 from unidecode import unidecode
 from get_tickers import tickers
+from sentiment_analyzer import analyzer
 
 couch = couchdb.Server('http://admin:password@129.114.27.202:30003/')
 try:
@@ -22,16 +23,18 @@ reddit = praw.Reddit(
 while True:
 	try:
 		subreddit = reddit.subreddit("wallstreetbets")
-		for comment in subreddit.stream.submissions(skip_existing=True):
+		for comment in subreddit.stream.comments(skip_existing=False):
 			cur_time = time.time()
 			subreddit = str(comment.subreddit)
-			title = str(comment.link_title)
-			body = str(comment.body)[:3000]	#at most 3000 characters
+			title = str(comment.title)
+			body = str(comment.selftext)[:4000]	#at most 4000 characters
 
-			if (!any(x.lower() in str for x in tickers):	#if it doesn't have any of the tickers
+			if not any(x.lower() in body.split() for x in tickers):
 				continue
-			vs = analyzer.polarity_scores(unidecode(body))
-			sentiment = vs['compound']	# want the compound score
+
+			title_sentiment = analyzer.polarity_scores(unidecode(title.lower()))['compound']
+			body_sentiment = analyzer.polarity_scores(unidecode(body.lower()))['compound']
+			sentiment = title_sentiment * body_sentiment	# want the combined score
 
 			output = {
 				'date' : cur_time,
