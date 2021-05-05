@@ -26,15 +26,15 @@ while True:
 		for comment in subreddit.stream.comments(skip_existing=False):
 			cur_time = time.time()
 			subreddit = str(comment.subreddit)
-			title = str(comment.title)
-			body = str(comment.selftext)[:4000]	#at most 4000 characters
+			title = str(comment.link_title)
+			body = str(comment.body)[:4000]	#at most 4000 characters
 
 			if not any(x.lower() in body.split() for x in tickers):
 				continue
 
 			title_sentiment = analyzer.polarity_scores(unidecode(title.lower()))['compound']
 			body_sentiment = analyzer.polarity_scores(unidecode(body.lower()))['compound']
-			sentiment = title_sentiment * body_sentiment	# want the combined score
+			sentiment = title_sentiment + body_sentiment	# want the combined score
 
 			output = {
 				'date' : cur_time,
