@@ -29,6 +29,5 @@ for i in range(len(tickers)):
 		continue
 	output.loc[i] = [ticker, a, b.mean()]
 
-
 print(output.sort_values('count')[::-1])
 
