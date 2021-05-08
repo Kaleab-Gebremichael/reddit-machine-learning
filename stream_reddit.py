@@ -22,7 +22,8 @@ reddit = praw.Reddit(
 
 while True:
 	try:
-		subreddit = reddit.subreddit("wallstreetbets")
+		cur_subreddit = os.environ.get('SUBREDDIT')
+		subreddit = reddit.subreddit(cur_subreddit)
 		for comment in subreddit.stream.comments(skip_existing=False):
 			cur_time = time.time()
 			subreddit = str(comment.subreddit)
